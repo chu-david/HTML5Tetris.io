@@ -1,0 +1,66 @@
+@charset "utf-8";
+/* CSS Document */
+
+p,P{
+	
+	width:auto;
+	border:medium rgba(0,76,255,1.00) solid;
+	overflow:inherit;
+}
+
+.container{
+	
+	height:600px;
+	width:750px;
+	border:medium rgba(0,76,255,1.00) solid;
+	border-radius:5px;
+	margin:5px;
+	
+}
+
+.banner{
+	
+	width:120px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.grid{
+	/*height: 560px;
+	width: 480px;*/
+	margin: 10px;
+	float:left;
+	background-color: rgba(0,0,0,1.00);
+	color: rgba(175,23,209,1.00);
+	min-width: 480px;
+	border-radius:5px;
+}
+
+.preview{
+	
+	float:left;
+	height:120px;
+	width:160px;
+	background-color:rgba(0,0,0,1.00);
+	border-radius:3px;
+	
+}
+
+.controls{
+	
+	width:200px;
+	height:300px;
+	float:left;
+	margin:10px;
+	border:rgba(35,1,252,1.00) thin solid;
+}
+
+.cell{
+	
+	padding:2px;
+	border:rgba(255,255,255,1.00) dotted thin;
+	float:left;
+	
+	
+	
+}
