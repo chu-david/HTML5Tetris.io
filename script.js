@@ -5,30 +5,32 @@ $(document).ready(function(){
 	//console.log("Ready");
 		var currentBlock;
 		currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
-		var speed = 1000; //time between each block movement//
+		var speed = 500; //time between each block movement//
 		var bufferTime = -2 // 3 Seconds between Start Game and Ready
 		var stopped = false; //To see if the Block has reached its end state//
-		var newBlock = true; //To see if it is a new Block//		
-		
+		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
 		var height = 14;
+		var boundaries = [0,width,0]; //captures the distance between the block and the left, right and bottom boundaries
+		
+
 
 		var gridFill = new Array(width);
 		
 		for(var i=0; i<width;i++){
 		
-		gridFill[i]=new Array(height);
+			gridFill[i]=new Array(height);
 			
 		}//to capture what grids are filled
 		
-		for(i=0;i<width;i++){
+		for(var i=0;i<width;i++){
 			
-			for(j=0;j<height;j++){
+			for(var j=0;j<height;j++){
 		
-			gridFill[i][j] = null;			
+				gridFill[i][j] = null;			
 			}
 		}	
-		//console.log(gridFill);
+		console.log(gridFill[0][5]);
 		
 		createCells(width,height);
 		
@@ -246,37 +248,72 @@ $(document).ready(function(){
 		
 		update(currentBlock,"preview",1,1);	//1-1 To align with Preview Grid	
 		
-		setInterval(blockDown,1000);
+		setInterval(blockDown,speed);
 		
 	}
 	
 	$(document).keydown(function(e){
+		
+		//replace this as a function to be called - use if statement to bypass the following// return boundaries 
+		
+		for(var i=0;i<currentBlock.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
+			console.log("original "+i);
+			var j = parseInt(currentBlock[i][0])-1;
 			
-		var leftBoundary;
-		var rightBoundary;
+			var leftBoundary = gridFill[j][(currentBlock[i][1])] //currently once we reach boundary it can't be moved again//
+			while( leftBoundary ==null && j!=0){ //left
 			
-		for(var i=0;i<currentBlock.length;i++){
+				j=j-1;
+				
+			}
+			
+			if(j>boundaries[0]){
+				boundaries[0] = j;	
+			}
+			
+			var j = parseInt(currentBlock[i][0])+1;
+
+			var rightBoundary = gridFill[j][(currentBlock[i][1])];
+			
+			console.log(rightBoundary);
+			while(
+			rightBoundary==null 
+			&& 
+			j!==width){ //right
+			
+				j=j+1;
+				//console.log(j);					
+			}
+			
+			if(j<boundaries[1]){ 
+				boundaries[1] = j;
+
+			}
+			
+		}
+		
+/*		for(var i=0;i<currentBlock.length;i++){
 				
 			if(currentBlock[i][0] ==0){	
-				leftBoundary = true;	
+				leftBoundary = true;	//revise, leftBoundary now redundant
 			}else if(currentBlock[i][0] ==12){
 			
 				rightBoundary =true;
 			}
-		}
+		}*/
 		
 		switch(e.which){
 				
 			case 37: //left key
 								
-				if(leftBoundary!==true){//block reaches left border)//
+				if(boundaries[0]!==1){//block reaches left block or boundary)//
 				
 				update(currentBlock,"grid",-1,0);
 				}
 				break;
 		
 			case 39: //right key
-				if(rightBoundary!==true){
+				if(boundaries[1]!==14){
 				
 				update(currentBlock,"grid", 1,0);
 				}
@@ -285,6 +322,9 @@ $(document).ready(function(){
 			case 32: //down key or space bar, rotate
 				rotate(currentBlock);
 				break;
+				
+			default:
+				break
 							
 		}
 		
