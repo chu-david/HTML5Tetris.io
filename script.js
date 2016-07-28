@@ -5,13 +5,13 @@ $(document).ready(function(){
 	//console.log("Ready");
 		var currentBlock;
 		currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
-		var speed = 500; //time between each block movement//
+		var speed = 1000; //time between each block movement//
 		var bufferTime = -2 // 3 Seconds between Start Game and Ready
 		var stopped = false; //To see if the Block has reached its end state//
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
 		var height = 14;
-		var distance = [0,width,height]; //captures the distance between the block and the left, right and bottom boundaries
+		var distance = [width-1,width-1,height]; //captures the distance between the block and the left, right and bottom boundaries
 		
 		var gridFill = new Array(width);
 		
@@ -27,8 +27,17 @@ $(document).ready(function(){
 		
 				gridFill[i][j] = null;			
 			}
-		}	
-		console.log(gridFill[0][5]);
+		}
+	
+		for(var j=0;j<height;j++){
+		
+			gridFill[1][j] = "green";
+			
+			//$('.cell[id="2-4').
+			
+		}
+		
+		//console.log(gridFill);
 		
 		createCells(width,height);
 		
@@ -74,8 +83,8 @@ $(document).ready(function(){
 		Block[0][0] = 0;
 		Block[0][1] = 0; //Centre of each block
 		
-		var blockNo = Math.ceil(Math.random()*6);
-		
+		var blockNo = 1;//Math.ceil(Math.random()*6);
+				
 		switch(blockNo){
 		
 			case 0: //Block "J"//
@@ -152,7 +161,7 @@ $(document).ready(function(){
 		}
 	
 		return Block;
-	}
+	}//bring back the randomness when distance is repaired
 	
 	function update(Block,location,shiftX, shiftY){
 				
@@ -254,21 +263,20 @@ $(document).ready(function(){
 		
 		if(e.which == 39 || e.which ==37 || e.which ==32 ||e.which ==40||e.which ==38){ //invalid for all other keys
 		
-			findDistance(currentBlock);
-			
-			//revise following base on distance//
+			findDistance(currentBlock);//REVISE - not quite working yet//
+
 			switch(e.which){
 					
 				case 37: //left key
-									
-					if(boundaries[0]!==0){//block reaches left block or boundary)//
+					
+					if(distance[0]!==0){//block not reached left block or boundary)//
 					
 					update(currentBlock,"grid",-1,0);
 					}
 					break;
 			
 				case 39: //right key
-					if(boundaries[1]!==width-1){
+					if(distance[1]!==0){ 
 					
 					update(currentBlock,"grid", 1,0);
 					}
@@ -282,51 +290,59 @@ $(document).ready(function(){
 					break;
 								
 			}//end Switch
+			
+			console.log(distance);
+		
 		}//end if
 		
 		}); //End Event//
 	
-	function findDistance(Block){
+	
+	//Revise - still not accurate
+	function findDistance(Block){ //right now issue is when left is followed by right, distance calculation is incorrect
+		
+		distance=[width-1,width-1,height]; //reset
 		
 		for(var i=0;i<Block.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
-	
-				//var j = parseInt(currentBlock[i][0]); //X Coordinate of current square
+
+			//for each square, keep going LEFT, until a grid that isn't null is found, or the boundary is reached
+			//var j = 1; //Left distance, closest will be 1 grid away from current square
+			
+			var leftDistance = Block[i][0]; //if start from x=6, then it's 6 from boundary
+			var rightDistance = (width-1)-Block[i][0]; //if start from x=6, then it's 5 from the boundary (12-7)
+			
+			for(var j=0;j<Block[i][0];j++){ //start from left boundary x = 0
+			
+				if(gridFill[(j)][(Block[i][1])] !==null){ //if left boundary of the current square is occupied ie NOT null
 				
-				var j = 0; //default: right against the wall
-							
-				//console.log(gridFill[j][(currentBlock[i][1])]); //currently once we reach boundary it can't be moved again//
+					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//
 				
-				var checkLeft = gridFill[((Block[i][0])-j)][(Block[i][1])]; //Initialised as current square location
-				alert(checkLeft);
-				while( checkLeft ==null || (Block[i][0]-j)!==0){ //square evaluated is blank on the grid stack
+				};
+				var k = width-1-j; //corresponding counter from right boundary
 				
-					j=j+1;
+				if(gridFill[(k)][(Block[i][1])] !==null){ //if right boundary of current square is occupied ie NOT null
 					
-					console.log(j);
+					rightDistance=k-Block[i][0]-1; //only update if there is an occupied square in the way//	
+												
+				};
 					
-				}
+			}	
+			//leftDistance and rightDistance are now accurate for the current square only	
+
+			if(leftDistance<distance[0]){
 				
-				if(j>distance[0]){
-					distance[0] = j;	
-				}
-				
-				var j = parseInt(currentBlock[i][0]);
-	
-				var rightBoundary = gridFill[j][(currentBlock[i][1])];
-				
-				while(rightBoundary==null && j!==width){ //right
-				
-					j=j+1;
-					//console.log(j);					
-				}
-				
-				if(j<distance[1]){ 
-					distance[1] = j;
-	
-				}
-				
+				distance[0]=leftDistance; //smallest distance
+									
 			}
-			console.log("");	
+			
+			if(rightDistance < distance[1]){
+			
+				distance[1] = rightDistance;
+			
+			}
+				
+		}
+		
 	}
 	
 	function reset(){
