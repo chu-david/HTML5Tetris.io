@@ -11,10 +11,8 @@ $(document).ready(function(){
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
 		var height = 14;
-		var boundaries = [0,width,0]; //captures the distance between the block and the left, right and bottom boundaries
+		var distance = [0,width,height]; //captures the distance between the block and the left, right and bottom boundaries
 		
-
-
 		var gridFill = new Array(width);
 		
 		for(var i=0; i<width;i++){
@@ -254,81 +252,82 @@ $(document).ready(function(){
 	
 	$(document).keydown(function(e){
 		
-		//replace this as a function to be called - use if statement to bypass the following// return boundaries 
+		if(e.which == 39 || e.which ==37 || e.which ==32 ||e.which ==40||e.which ==38){ //invalid for all other keys
 		
-		for(var i=0;i<currentBlock.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
-			console.log("original "+i);
-			var j = parseInt(currentBlock[i][0])-1;
+			findDistance(currentBlock);
 			
-			var leftBoundary = gridFill[j][(currentBlock[i][1])] //currently once we reach boundary it can't be moved again//
-			while( leftBoundary ==null && j!=0){ //left
+			//revise following base on distance//
+			switch(e.which){
+					
+				case 37: //left key
+									
+					if(boundaries[0]!==0){//block reaches left block or boundary)//
+					
+					update(currentBlock,"grid",-1,0);
+					}
+					break;
 			
-				j=j-1;
-				
-			}
-			
-			if(j>boundaries[0]){
-				boundaries[0] = j;	
-			}
-			
-			var j = parseInt(currentBlock[i][0])+1;
-
-			var rightBoundary = gridFill[j][(currentBlock[i][1])];
-			
-			console.log(rightBoundary);
-			while(
-			rightBoundary==null 
-			&& 
-			j!==width){ //right
-			
-				j=j+1;
-				//console.log(j);					
-			}
-			
-			if(j<boundaries[1]){ 
-				boundaries[1] = j;
-
-			}
-			
-		}
-		
-/*		for(var i=0;i<currentBlock.length;i++){
-				
-			if(currentBlock[i][0] ==0){	
-				leftBoundary = true;	//revise, leftBoundary now redundant
-			}else if(currentBlock[i][0] ==12){
-			
-				rightBoundary =true;
-			}
-		}*/
-		
-		switch(e.which){
-				
-			case 37: //left key
+				case 39: //right key
+					if(boundaries[1]!==width-1){
+					
+					update(currentBlock,"grid", 1,0);
+					}
+					break;
+					
+				case 32: //down key or space bar, rotate
+					rotate(currentBlock);
+					break;
+					
+				default:
+					break;
 								
-				if(boundaries[0]!==1){//block reaches left block or boundary)//
-				
-				update(currentBlock,"grid",-1,0);
-				}
-				break;
+			}//end Switch
+		}//end if
 		
-			case 39: //right key
-				if(boundaries[1]!==14){
+		}); //End Event//
+	
+	function findDistance(Block){
+		
+		for(var i=0;i<Block.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
+	
+				//var j = parseInt(currentBlock[i][0]); //X Coordinate of current square
 				
-				update(currentBlock,"grid", 1,0);
-				}
-				break;
-				
-			case 32: //down key or space bar, rotate
-				rotate(currentBlock);
-				break;
-				
-			default:
-				break
+				var j = 0; //default: right against the wall
 							
-		}
-		
-	});
+				//console.log(gridFill[j][(currentBlock[i][1])]); //currently once we reach boundary it can't be moved again//
+				
+				var checkLeft = gridFill[((Block[i][0])-j)][(Block[i][1])]; //Initialised as current square location
+				alert(checkLeft);
+				while( checkLeft ==null || (Block[i][0]-j)!==0){ //square evaluated is blank on the grid stack
+				
+					j=j+1;
+					
+					console.log(j);
+					
+				}
+				
+				if(j>distance[0]){
+					distance[0] = j;	
+				}
+				
+				var j = parseInt(currentBlock[i][0]);
+	
+				var rightBoundary = gridFill[j][(currentBlock[i][1])];
+				
+				while(rightBoundary==null && j!==width){ //right
+				
+					j=j+1;
+					//console.log(j);					
+				}
+				
+				if(j<distance[1]){ 
+					distance[1] = j;
+	
+				}
+				
+			}
+			console.log("");	
+	}
 	
 	function reset(){
 		$('.cell').removeAttr('color');
