@@ -11,7 +11,7 @@ $(document).ready(function(){
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
 		var height = 14;
-		var distance = [width-1,width-1,height]; //captures the distance between the block and the left, right and bottom boundaries
+		//var distance = [width-1,width-1,height]; //captures the distance between the block and the left, right and bottom boundaries
 		
 		var gridFill = new Array(width);
 		
@@ -28,14 +28,16 @@ $(document).ready(function(){
 				gridFill[i][j] = null;			
 			}
 		}
-	
-		for(var j=0;j<height;j++){
+		
+		//test loop to introduce walls//
+		
+		/*for(var j=0;j<height;j++){
 		
 			gridFill[1][j] = "green";
 			
 			//$('.cell[id="2-4').
 			
-		}
+		}*/
 		
 		//console.log(gridFill);
 		
@@ -83,7 +85,7 @@ $(document).ready(function(){
 		Block[0][0] = 0;
 		Block[0][1] = 0; //Centre of each block
 		
-		var blockNo = 1;//Math.ceil(Math.random()*6);
+		var blockNo = Math.ceil(Math.random()*6);
 				
 		switch(blockNo){
 		
@@ -263,20 +265,20 @@ $(document).ready(function(){
 		
 		if(e.which == 39 || e.which ==37 || e.which ==32 ||e.which ==40||e.which ==38){ //invalid for all other keys
 		
-			findDistance(currentBlock);//REVISE - not quite working yet//
-
+			console.log("right distance"+findDistance(currentBlock, "right"));
+			
 			switch(e.which){
 					
 				case 37: //left key
 					
-					if(distance[0]!==0){//block not reached left block or boundary)//
+					if(findDistance(currentBlock,"left")!==0){//block not reached left block or boundary)//
 					
 					update(currentBlock,"grid",-1,0);
 					}
 					break;
 			
 				case 39: //right key
-					if(distance[1]!==0){ 
+					if(findDistance(currentBlock,"right")!==0){ 
 					
 					update(currentBlock,"grid", 1,0);
 					}
@@ -290,18 +292,14 @@ $(document).ready(function(){
 					break;
 								
 			}//end Switch
-			
-			console.log(distance);
 		
 		}//end if
 		
 		}); //End Event//
 	
-	
-	//Revise - still not accurate
-	function findDistance(Block){ //right now issue is when left is followed by right, distance calculation is incorrect
+	function findDistance(Block,direction){ //right now issue is when left is followed by right, distance calculation is incorrect
 		
-		distance=[width-1,width-1,height]; //reset
+		var distance=[width-1,width-1,height]; //reset
 		
 		for(var i=0;i<Block.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
 
@@ -318,29 +316,45 @@ $(document).ready(function(){
 					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//
 				
 				};
-				var k = width-1-j; //corresponding counter from right boundary
-				
+									
+			}
+			for(var k=(width-1);k>(Block[i][0]);k--){
+			//counter from right boundary, 11 if width = 12
+
 				if(gridFill[(k)][(Block[i][1])] !==null){ //if right boundary of current square is occupied ie NOT null
 					
 					rightDistance=k-Block[i][0]-1; //only update if there is an occupied square in the way//	
 												
 				};
-					
-			}	
-			//leftDistance and rightDistance are now accurate for the current square only	
+				
+			}
 
 			if(leftDistance<distance[0]){
 				
 				distance[0]=leftDistance; //smallest distance
 									
-			}
+			}//end if
 			
 			if(rightDistance < distance[1]){
 			
 				distance[1] = rightDistance;
 			
-			}
+			} //end if
 				
+		} //end for
+	
+		if(direction =="left"){
+		
+			return distance[0];	
+		
+		}else if(direction=="right"){
+		
+			return distance[1];	
+		
+		} else if(direction=="down"){
+		
+			return distance[2];	
+		
 		}
 		
 	}
