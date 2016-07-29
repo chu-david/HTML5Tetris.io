@@ -6,7 +6,7 @@ $(document).ready(function(){
 		var currentBlock;
 		currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
 		var speed = 1000; //time between each block movement//
-		var bufferTime = -2 // 3 Seconds between Start Game and Ready
+		var bufferTime = -3 // 3 Seconds between Start Game and Ready
 		var stopped = false; //To see if the Block has reached its end state//
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
@@ -67,8 +67,7 @@ $(document).ready(function(){
 			$(".preview").children().addClass("cell").css("height",(40-6)+"px").css("width",(40-6)+"px");
 	
 		}
-	}
-	
+	}	
 	function generateBlock(){
 	
 		var Block = new Array(5);
@@ -184,7 +183,6 @@ $(document).ready(function(){
 			
 		}		
 	}
-	
 	function rotate(Block){
 		
 		$(".grid").children().css('background-color','black');		
@@ -207,7 +205,6 @@ $(document).ready(function(){
 		}
 
 	}
-	
 	function blockDown(){
 				
 		if(bufferTime < 0){
@@ -250,7 +247,7 @@ $(document).ready(function(){
 	
 	function gameStart(){
 		
-		$("#StartGame").attr('disabled','disabled');
+		$("#StartGame").attr('disabled','disabled'); //suggest move somewhere else
 		
 		reset();
 		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
@@ -263,9 +260,9 @@ $(document).ready(function(){
 	
 	$(document).keydown(function(e){
 		
-		if(e.which == 39 || e.which ==37 || e.which ==32 ||e.which ==40||e.which ==38){ //invalid for all other keys
-		
-			console.log("right distance"+findDistance(currentBlock, "right"));
+		if(e.which == 39 || e.which ==37 || e.which ==38 ||e.which ==40){ //invalid for all other keys
+			//right arrow		left arrow		up arrow	down arrow
+			console.log("bottom distance"+findDistance(currentBlock, "bottom"));
 			
 			switch(e.which){
 					
@@ -284,9 +281,15 @@ $(document).ready(function(){
 					}
 					break;
 					
-				case 32: //down key or space bar, rotate
+				case 32: //up key , rotate
+				
+					//need to account for walls
 					rotate(currentBlock);
 					break;
+				
+				case 40: //down key, go all the way down
+				
+					update(currentBlock,"grid",0,(findDistance(currentBlock,"bottom")-1));
 					
 				default:
 					break;
@@ -299,7 +302,7 @@ $(document).ready(function(){
 	
 	function findDistance(Block,direction){ //right now issue is when left is followed by right, distance calculation is incorrect
 		
-		var distance=[width-1,width-1,height]; //reset
+		var distance=[width-1,width-1,height-1]; //reset
 		
 		for(var i=0;i<Block.length-1;i++){ //this for loop determines the left, right and bottom boundaries at each state//
 
@@ -308,40 +311,53 @@ $(document).ready(function(){
 			
 			var leftDistance = Block[i][0]; //if start from x=6, then it's 6 from boundary
 			var rightDistance = (width-1)-Block[i][0]; //if start from x=6, then it's 5 from the boundary (12-7)
+			var bottomDistance = height-3; //initialised height
 			
 			for(var j=0;j<Block[i][0];j++){ //start from left boundary x = 0
 			
 				if(gridFill[(j)][(Block[i][1])] !==null){ //if left boundary of the current square is occupied ie NOT null
 				
-					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//
-				
-				};
-									
+					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//	
+				};						
 			}
-			for(var k=(width-1);k>(Block[i][0]);k--){
-			//counter from right boundary, 11 if width = 12
-
-				if(gridFill[(k)][(Block[i][1])] !==null){ //if right boundary of current square is occupied ie NOT null
-					
-					rightDistance=k-Block[i][0]-1; //only update if there is an occupied square in the way//	
-												
-				};
-				
-			}
-
+			
 			if(leftDistance<distance[0]){
 				
 				distance[0]=leftDistance; //smallest distance
 									
 			}//end if
-			
+		
+			for(var k=(width-1);k>(Block[i][0]);k--){
+			//counter from right boundary, 11 if width = 12
+
+				if(gridFill[k][(Block[i][1])] !==null){ //if right boundary of current square is occupied ie NOT null
+					
+					rightDistance=k-Block[i][0]-1; //only update if there is an occupied square in the way//	
+												
+				}; //end if
+				
+			} //end for	
 			if(rightDistance < distance[1]){
 			
 				distance[1] = rightDistance;
 			
 			} //end if
+			
+			for(var m = (height-1);m>(Block[i][1]);m--){
+			
+				if(gridFill[(Block[i][0])][m] !==null){
+					bottomDistance = m-Block[i][1]-1;	
+				}
 				
+			}
+			if(bottomDistance < distance[2]){
+			
+				distance[2] = bottomDistance;
+			
+			} //end if
+							
 		} //end for
+	
 	
 		if(direction =="left"){
 		
