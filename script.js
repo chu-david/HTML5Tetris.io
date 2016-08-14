@@ -4,8 +4,9 @@ $(document).ready(function(){
 	
 	//console.log("Ready");
 		var currentBlock;
-		currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
-		var speed = 1000; //time between each block movement//
+		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
+		var nextBlock;
+		var speed = 500; //time between each block movement//
 		var bufferTime = -3 // 3 Seconds between Start Game and Ready
 		var stopped = false; //To see if the Block has reached its end state//
 		var newBlock = true; //To see if it is a new Block//
@@ -31,19 +32,22 @@ $(document).ready(function(){
 		
 		//test loop to introduce walls//
 		
-		/*for(var j=0;j<height;j++){
-		
-			gridFill[1][j] = "green";
+		for(var j=0;j<width;j++){
+
+			gridFill[j][13] = "green";
+			//gridFill[1][j] = "green";
 			
 			//$('.cell[id="2-4').
 			
-		}*/
+		}
 		
 		//console.log(gridFill);
 		
 		createCells(width,height);
 		
 		$('#StartGame').click(function(){
+			
+			currentBlock =generateBlock(); 
 			
 			gameStart();
 			});
@@ -165,7 +169,7 @@ $(document).ready(function(){
 	}//bring back the randomness when distance is repaired
 	
 	function update(Block,location,shiftX, shiftY){
-				
+	
 		shiftX = parseInt(shiftX);
 		shiftY = parseInt(shiftY);
 		
@@ -179,7 +183,7 @@ $(document).ready(function(){
 		
 			var CurrentCell = "#"+location+Block[i].toString().replace(',','-');	
 			
-			$(CurrentCell).css('background-color',Block[4]);
+			$(CurrentCell).css('background-color',Block[Block.length-1]);
 			
 		}		
 	}
@@ -197,6 +201,8 @@ $(document).ready(function(){
 			var temp1 = 0*Block[i][0]+-1*Block[i][1];//rotational matrix - rotate clockwise by 90 degrees
 			var temp2 = 1*Block[i][0]+0*Block[i][1];
 			
+			//findDistance check//
+			
 			Block[i][0] = temp1+XOffset; //x direction//
 			Block[i][1] = temp2+YOffset; //y direction//
 			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');	
@@ -206,7 +212,7 @@ $(document).ready(function(){
 
 	}
 	function blockDown(){
-				
+						
 		if(bufferTime < 0){
 			
 			$("#message").html("Game will Start in.."+(-bufferTime)+ "Seconds");
@@ -218,11 +224,20 @@ $(document).ready(function(){
 			$('#StartGame').removeAttr('disabled').attr('value','pause');
 		
 		}else{		
-	
-			//console.log(newBlock); //CURRENT LEVEL - need to find a way to pass boolean to blockDown function//
+
+			if(stopped == true){//run the first time//
+				
+				currentBlock = nextBlock; 
+				
+				stopped ==false;
+				
+			}
 			
-			if(newBlock ==true){	
-				var nextBlock = generateBlock();
+			if(newBlock ==true){
+				
+				displayGrid(); //print GridFill to all cells//
+					
+				nextBlock = generateBlock();
 				
 				update(nextBlock, "preview",1,1); //1-1 to align with preview Grid
 				
@@ -237,12 +252,28 @@ $(document).ready(function(){
 			//if(stopped == false){
 			}else if (newBlock ==false){
 			
-				update(currentBlock,"grid",0,1); //net movement only
+				update(currentBlock,"grid",0,1); //downward movement only
 				
 			}
+			
+			//test me
+			if(findDistance(currentBlock,"down") == 0){
+			
+				block2Grid(currentBlock);
+				
+				newBlock = true;
+				
+			};
+			
+			
 				
 		}
-		bufferTime = bufferTime + 1;		
+		bufferTime = bufferTime + 1;
+		
+		//alert("Wait");
+		
+		console.log(currentBlock);
+			
 	}
 	
 	function gameStart(){
@@ -253,7 +284,7 @@ $(document).ready(function(){
 		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
 		
 		update(currentBlock,"preview",1,1);	//1-1 To align with Preview Grid	
-		
+			
 		setInterval(blockDown,speed);
 		
 	}
@@ -262,7 +293,8 @@ $(document).ready(function(){
 		
 		if(e.which == 39 || e.which ==37 || e.which ==38 ||e.which ==40){ //invalid for all other keys
 			//right arrow		left arrow		up arrow	down arrow
-			console.log("bottom distance"+findDistance(currentBlock, "bottom"));
+			
+			console.log("bottom distance"+findDistance(currentBlock, "down"));
 			
 			switch(e.which){
 					
@@ -281,15 +313,15 @@ $(document).ready(function(){
 					}
 					break;
 					
-				case 32: //up key , rotate
+				case 38: //up key , rotate
 				
-					//need to account for walls
+					//need to check for walls
 					rotate(currentBlock);
 					break;
 				
 				case 40: //down key, go all the way down
 				
-					update(currentBlock,"grid",0,(findDistance(currentBlock,"bottom")-1));
+					update(currentBlock,"grid",0,(findDistance(currentBlock,"down")-1));
 					
 				default:
 					break;
@@ -300,7 +332,7 @@ $(document).ready(function(){
 		
 		}); //End Event//
 	
-	function findDistance(Block,direction){ //right now issue is when left is followed by right, distance calculation is incorrect
+	function findDistance(Block,direction){
 		
 		var distance=[width-1,width-1,height-1]; //reset
 		
@@ -316,6 +348,8 @@ $(document).ready(function(){
 			for(var j=0;j<Block[i][0];j++){ //start from left boundary x = 0
 			
 				if(gridFill[(j)][(Block[i][1])] !==null){ //if left boundary of the current square is occupied ie NOT null
+				
+				//DEBUG//
 				
 					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//	
 				};						
@@ -342,11 +376,16 @@ $(document).ready(function(){
 				distance[1] = rightDistance;
 			
 			} //end if
+				
+			bottomDistance = (height-1)-Block[i][1]; //default bottomDistance			
 			
 			for(var m = (height-1);m>(Block[i][1]);m--){
-			
-				if(gridFill[(Block[i][0])][m] !==null){
+								
+				if(gridFill[(Block[i][0])][m] !==null){ //any cells filled under the current square?
 					bottomDistance = m-Block[i][1]-1;	
+					
+					console.log("bottomDistance updated");
+				
 				}
 				
 			}
@@ -358,6 +397,8 @@ $(document).ready(function(){
 							
 		} //end for
 	
+	
+		//console.log(distance); //works
 	
 		if(direction =="left"){
 		
@@ -374,6 +415,36 @@ $(document).ready(function(){
 		}
 		
 	}
+	
+	function block2Grid(Block){ //saves the block to the grid matrix
+	
+		console.log("block2Grid executed");
+
+		for(var i=0; i < Block.length-1; i++){
+			
+			gridFill[(Block[i][0])][(Block[i][1])]= Block[Block.length-1][0]; //DEBUG THIS//
+		
+			var CurrentCell = "#grid"+Block[i].toString().replace(',','-');	
+			
+			$(CurrentCell).css('background-color',Block[Block.length-1]);
+		
+		}
+					
+		newBlock = true;
+		stopped = true;
+	}
+	
+	function displayGrid(){ //test this
+		
+		for(var i = 0; i<width-1;i++){
+			
+			for(var j = 0; j<height-1;j++){
+		
+				$('#'+'grid'+i+'-'+j).css('background-color',gridFill[i][j]);
+			}
+		}
+	}
+	
 	
 	function reset(){
 		$('.cell').removeAttr('color');
