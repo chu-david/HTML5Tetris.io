@@ -2,17 +2,14 @@
 
 $(document).ready(function(){
 	
-	//console.log("Ready");
+		//console.log("Ready");
 		var currentBlock;
-		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
 		var nextBlock;
 		var speed = 500; //time between each block movement//
 		var bufferTime = -3 // 3 Seconds between Start Game and Ready
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
-		var height = 14;
-		//var distance = [width-1,width-1,height]; //captures the distance between the block and the left, right and bottom boundaries
-		
+		var height = 14;		
 		var gridFill = new Array(width);
 		
 		for(var i=0; i<width;i++){
@@ -31,14 +28,14 @@ $(document).ready(function(){
 		
 		//test loop to introduce walls//
 		
-		for(var j=0;j<width;j++){
+/*		for(var j=0;j<width;j++){
 
 			gridFill[j][13] = "green";
 			//gridFill[1][j] = "green";
 			
 			//$('.cell[id="2-4').
 			
-		}
+		}*/
 		
 		//console.log(gridFill);
 		
@@ -164,7 +161,6 @@ $(document).ready(function(){
 	
 		return Block;
 	}
-	
 	function update(Block,location,shiftX, shiftY){
 	
 		shiftX = parseInt(shiftX);
@@ -187,30 +183,17 @@ $(document).ready(function(){
 	}
 	function rotate(Block){ //still some latency//
 		
-		var rotatable = true;
-				
+		var rotatable = true;				
 		var XOffset = parseInt(Block[0][0]);
 		var YOffset = parseInt(Block[0][1]);
-		
-		var testBlock = new Array(5)
 				
-			for(var i=0;i<Block.length-1;i++){
-				
-			testBlock[i]=new Array(2);
-			
-		};
-		
 		for(var i=0;i<Block.length-1;i++){ //loop through every member of the block//
 			
-			testBlock[i][0] = Block[i][0]-XOffset;
-			testBlock[i][1] = Block[i][1]-YOffset;			
+			var testSquareX = Block[i][0]-XOffset;
+			var testSquareY = Block[i][1]-YOffset;			
 						
-			var temp1 = 0*testBlock[i][0]+-1*testBlock[i][1];//rotational matrix - rotate clockwise by 90 degrees
-			var temp2 = 1*testBlock[i][0]+0*testBlock[i][1];
-			
-			//testBlock[i][0] = temp1+XOffset; //x direction//
-			
-			//testBlock[i][1] = temp2+YOffset; //y direction//						
+			var temp1 = 0*testSquareX+-1*testSquareY;//rotational matrix - rotate clockwise by 90 degrees
+			var temp2 = 1*testSquareX+0*testSquareY;					
 			
 			if(gridFill[(temp1+XOffset)][(temp2+YOffset)]!=='black'){
 				
@@ -220,14 +203,12 @@ $(document).ready(function(){
 			}	
 		}
 		
-		//console.log(testBlock);
-		//console.log(Block);
+		displayGrid();
 		
 		if(rotatable === true){
 			
 			for(var i=0;i<Block.length-1;i++){ //loop through every member of the block//			
-			
-				$('#grid'+Block[i][0]+'-'+Block[i][1]).css('background-color','black');				
+						
 				Block[i][0] = Block[i][0]-XOffset;
 				Block[i][1] = Block[i][1]-YOffset;			
 							
@@ -240,8 +221,6 @@ $(document).ready(function(){
 				
 				$(CurrentCell).css('background-color',Block[4]);
 				
-				console.log(CurrentCell);
-		
 			} //end For
 		}
 
@@ -306,8 +285,7 @@ $(document).ready(function(){
 				
 		}
 		bufferTime = bufferTime + 1;
-		
-			
+				
 	}
 	
 	$(document).keydown(function(e){
@@ -344,7 +322,12 @@ $(document).ready(function(){
 					
 					block2Grid(currentBlock);
 					
+					displayGrid();
+					
+					sweep();
+					
 					newBlock = true;
+					break;
 					
 				default:
 					break;
@@ -460,6 +443,46 @@ $(document).ready(function(){
 			}
 		}
 	}
+	
+	function sweep(){
+		
+		console.log("attempt to sweep");
+		
+		for(var i=height-1; i>=0;i--){
+			
+			var clearLevel = true;
+			
+			for(var j=0;j<width;j++){
+				
+				console.log(gridFill[j][i]); //seem to be indicating where bugs are
+				
+				if(gridFill[j][i] =="black"){
+					
+					clearLevel=false;
+				}/*else{
+					console.log("true triggered");
+				}*/ //test - true triggered a few times
+			}
+			if(clearLevel == true){ //to be tested//
+				
+				console.log("can sweep");
+								
+				gridFill.splice(i,i+1);
+				
+				var Empty = new Array(height);
+				
+				for(var j=0;j<height;j++){
+			
+					Empty[j] = "black";
+				}
+				gridFill = Empty.concat(gridFill);
+				
+				i=i-1;
+			}
+		}
+	
+	}
+	
 	
 	function reset(){
 		$('.cell').removeAttr('color');
