@@ -47,7 +47,7 @@ $(document).ready(function(){
 		$('#StartGame').click(function(){
 			
 			nextBlock =generateBlock(); 
-			
+			displayGrid();
 			gameStart();
 			});
 
@@ -170,16 +170,15 @@ $(document).ready(function(){
 	function update(Block,location,shiftX, shiftY){
 	
 		shiftX = parseInt(shiftX);
-		shiftY = parseInt(shiftY);
-		
-		$("."+location).children().css('background-color','black');		
+		shiftY = parseInt(shiftY);	
 		
 		displayGrid();
 		
 		for(var i=0;i<Block.length-1;i++){
 			
-			Block[i][0] = Block[i][0]+shiftX; //x direction//
+			//$('#grid'+Block[i][0]+'-'+Block[i][1]).css('background-color','black');
 			
+			Block[i][0] = Block[i][0]+shiftX; //x direction//
 			Block[i][1] = Block[i][1]+shiftY; //y direction//
 		
 			var CurrentCell = "#"+location+Block[i].toString().replace(',','-');	
@@ -189,14 +188,39 @@ $(document).ready(function(){
 		}		
 	}
 	function rotate(Block){
-		
-		$(".grid").children().css('background-color','black');		
+				
 		var XOffset = parseInt(Block[0][0]);
 		var YOffset = parseInt(Block[0][1]);
+		
+		var testBlock = Block;
 			
 		for(var i=0;i<Block.length-1;i++){ //loop through every member of the block//
 			
-			Block[i][0] = Block[i][0]-XOffset;
+			$('#grid'+Block[i][0]+'-'+Block[i][1]).css('background-color','black');
+			
+			testBlock[i][0] = testBlock[i][0]-XOffset;
+			testBlock[i][1] = testBlock[i][1]-YOffset;			
+						
+			var temp1 = 0*testBlock[i][0]+-1*testBlock[i][1];//rotational matrix - rotate clockwise by 90 degrees
+			var temp2 = 1*testBlock[i][0]+0*testBlock[i][1];
+			
+			//findDistance check//
+			
+			if(gridFill[(temp1+XOffset)][(temp2+YOffset)]!=='black'){
+				
+				console.log("can't rotate");
+				
+			}else{
+			
+			Block[i][0] = temp1+XOffset; //x direction//
+			Block[i][1] = temp2+YOffset; //y direction//
+			
+			}
+			
+			
+			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');	
+			
+			/*Block[i][0] = Block[i][0]-XOffset;
 			Block[i][1] = Block[i][1]-YOffset;			
 						
 			var temp1 = 0*Block[i][0]+-1*Block[i][1];//rotational matrix - rotate clockwise by 90 degrees
@@ -205,20 +229,20 @@ $(document).ready(function(){
 			//findDistance check//
 			
 			Block[i][0] = temp1+XOffset; //x direction//
-			Block[i][1] = temp2+YOffset; //y direction//
-			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');	
+			Block[i][1] = temp2+YOffset; //y direction//	*/
+			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');
 			
-			$(CurrentCell).css('background-color',Block[4]);			
-		}
+			$(CurrentCell).css('background-color',Block[4]);
+	
+		} //end For
 
-	}
+	} //end Function
 		
 	function gameStart(){
 		
 		$("#StartGame").attr('disabled','disabled'); //suggest move somewhere else
 		
 		reset();
-		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
 		
 		update(nextBlock,"preview",1,1);	//1-1 To align with Preview Grid	
 			
@@ -248,17 +272,14 @@ $(document).ready(function(){
 					
 				nextBlock = generateBlock();
 				
+				$(".preview").children().css("background-color",'black');
+				
 				update(nextBlock, "preview",1,1); //1-1 to align with preview Grid
-				
-				$(".preview").children().removeAttr("background-color");//Test this//
-				
+								
 				update(currentBlock, "grid",5,0); //5-1 to align with Main Grid
-
-				//console.log(currentBlock);
 				
 				newBlock =false;
 										
-			//if(stopped == false){
 			}else if (newBlock ==false){
 			
 				update(currentBlock,"grid",0,1); //downward movement only
@@ -278,6 +299,7 @@ $(document).ready(function(){
 				
 		}
 		bufferTime = bufferTime + 1;
+		
 			
 	}
 	
@@ -311,7 +333,7 @@ $(document).ready(function(){
 				
 				case 40: //down key, go all the way down
 				
-					update(currentBlock,"grid",0,(findDistance(currentBlock,"down"))); //not perfect
+					update(currentBlock,"grid",0,(findDistance(currentBlock,"down")));
 					
 					block2Grid(currentBlock);
 					
