@@ -8,7 +8,6 @@ $(document).ready(function(){
 		var nextBlock;
 		var speed = 500; //time between each block movement//
 		var bufferTime = -3 // 3 Seconds between Start Game and Ready
-		var stopped = false; //To see if the Block has reached its end state//
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
 		var height = 14;
@@ -26,7 +25,7 @@ $(document).ready(function(){
 			
 			for(var j=0;j<height;j++){
 		
-				gridFill[i][j] = null;			
+				gridFill[i][j] = "black";			
 			}
 		}
 		
@@ -47,7 +46,7 @@ $(document).ready(function(){
 		
 		$('#StartGame').click(function(){
 			
-			currentBlock =generateBlock(); 
+			nextBlock =generateBlock(); 
 			
 			gameStart();
 			});
@@ -88,11 +87,11 @@ $(document).ready(function(){
 		Block[0][0] = 0;
 		Block[0][1] = 0; //Centre of each block
 		
-		var blockNo = Math.ceil(Math.random()*6);
+		var blockNo = Math.ceil(Math.random()*7);
 				
 		switch(blockNo){
 		
-			case 0: //Block "J"//
+			case 7: //Block "J"//
 				Block[1][0]= 1;
 				Block[1][1]= 0;
 				Block[2][0] = -1;
@@ -166,7 +165,7 @@ $(document).ready(function(){
 		}
 	
 		return Block;
-	}//bring back the randomness when distance is repaired
+	}
 	
 	function update(Block,location,shiftX, shiftY){
 	
@@ -174,6 +173,8 @@ $(document).ready(function(){
 		shiftY = parseInt(shiftY);
 		
 		$("."+location).children().css('background-color','black');		
+		
+		displayGrid();
 		
 		for(var i=0;i<Block.length-1;i++){
 			
@@ -211,6 +212,20 @@ $(document).ready(function(){
 		}
 
 	}
+		
+	function gameStart(){
+		
+		$("#StartGame").attr('disabled','disabled'); //suggest move somewhere else
+		
+		reset();
+		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
+		
+		update(nextBlock,"preview",1,1);	//1-1 To align with Preview Grid	
+			
+		setInterval(blockDown,speed);
+		
+	}
+	
 	function blockDown(){
 						
 		if(bufferTime < 0){
@@ -224,17 +239,11 @@ $(document).ready(function(){
 			$('#StartGame').removeAttr('disabled').attr('value','pause');
 		
 		}else{		
-
-			if(stopped == true){//run the first time//
-				
-				currentBlock = nextBlock; 
-				
-				stopped ==false;
-				
-			}
-			
+		
 			if(newBlock ==true){
 				
+				currentBlock = nextBlock; 
+						
 				displayGrid(); //print GridFill to all cells//
 					
 				nextBlock = generateBlock();
@@ -263,38 +272,19 @@ $(document).ready(function(){
 				
 				newBlock = true;
 				
+				console.log(gridFill[6]);
+				
 			};
-			
-			
 				
 		}
 		bufferTime = bufferTime + 1;
-		
-		//alert("Wait");
-		
-		console.log(currentBlock);
 			
-	}
-	
-	function gameStart(){
-		
-		$("#StartGame").attr('disabled','disabled'); //suggest move somewhere else
-		
-		reset();
-		//var currentBlock =generateBlock(); //Array "Block" will have the coordiante for the next block
-		
-		update(currentBlock,"preview",1,1);	//1-1 To align with Preview Grid	
-			
-		setInterval(blockDown,speed);
-		
 	}
 	
 	$(document).keydown(function(e){
 		
 		if(e.which == 39 || e.which ==37 || e.which ==38 ||e.which ==40){ //invalid for all other keys
 			//right arrow		left arrow		up arrow	down arrow
-			
-			console.log("bottom distance"+findDistance(currentBlock, "down"));
 			
 			switch(e.which){
 					
@@ -347,9 +337,7 @@ $(document).ready(function(){
 			
 			for(var j=0;j<Block[i][0];j++){ //start from left boundary x = 0
 			
-				if(gridFill[(j)][(Block[i][1])] !==null){ //if left boundary of the current square is occupied ie NOT null
-				
-				//DEBUG//
+				if(gridFill[(j)][(Block[i][1])] !=="black"){ //if left boundary of the current square is occupied ie NOT null
 				
 					leftDistance=Block[i][0]-j-1; //only update if there is an occupied square in the way//	
 				};						
@@ -364,7 +352,7 @@ $(document).ready(function(){
 			for(var k=(width-1);k>(Block[i][0]);k--){
 			//counter from right boundary, 11 if width = 12
 
-				if(gridFill[k][(Block[i][1])] !==null){ //if right boundary of current square is occupied ie NOT null
+				if(gridFill[k][(Block[i][1])] !=="black"){ //if right boundary of current square is occupied ie NOT null
 					
 					rightDistance=k-Block[i][0]-1; //only update if there is an occupied square in the way//	
 												
@@ -379,13 +367,13 @@ $(document).ready(function(){
 				
 			bottomDistance = (height-1)-Block[i][1]; //default bottomDistance			
 			
+			//console.log(gridFill[(Block[i][0])][height-1]);
+			
 			for(var m = (height-1);m>(Block[i][1]);m--){
 								
-				if(gridFill[(Block[i][0])][m] !==null){ //any cells filled under the current square?
+				if(gridFill[(Block[i][0])][m]!=="black"){ //any cells filled under the current square?
 					bottomDistance = m-Block[i][1]-1;	
 					
-					console.log("bottomDistance updated");
-				
 				}
 				
 			}
@@ -396,9 +384,8 @@ $(document).ready(function(){
 			} //end if
 							
 		} //end for
-	
-	
-		//console.log(distance); //works
+		
+		console.log(bottomDistance);
 	
 		if(direction =="left"){
 		
@@ -417,34 +404,29 @@ $(document).ready(function(){
 	}
 	
 	function block2Grid(Block){ //saves the block to the grid matrix
-	
-		console.log("block2Grid executed");
 
 		for(var i=0; i < Block.length-1; i++){
 			
-			gridFill[(Block[i][0])][(Block[i][1])]= Block[Block.length-1][0]; //DEBUG THIS//
+			gridFill[(Block[i][0])][(Block[i][1])]= Block[Block.length-1];
 		
 			var CurrentCell = "#grid"+Block[i].toString().replace(',','-');	
 			
 			$(CurrentCell).css('background-color',Block[Block.length-1]);
 		
 		}
-					
-		newBlock = true;
-		stopped = true;
 	}
 	
-	function displayGrid(){ //test this
+	function displayGrid(){  //to optimise - slow response time//
 		
-		for(var i = 0; i<width-1;i++){
+		for(var i = 0; i<width;i++){
 			
-			for(var j = 0; j<height-1;j++){
+			for(var j = 0; j<height;j++){
 		
 				$('#'+'grid'+i+'-'+j).css('background-color',gridFill[i][j]);
+
 			}
 		}
 	}
-	
 	
 	function reset(){
 		$('.cell').removeAttr('color');
