@@ -11,6 +11,7 @@ $(document).ready(function(){
 		var width = 12;
 		var height = 14;		
 		var gridFill = new Array(width);
+		var score = 0; //overall score
 		
 		for(var i=0; i<width;i++){
 		
@@ -478,6 +479,8 @@ $(document).ready(function(){
 				gridFill = Empty.concat(gridFill);
 				
 				i=i-1;
+				
+				speed = speed*0.95;
 			}
 		}
 	
