@@ -74,9 +74,7 @@ $(document).ready(function(){
 	function generateBlock(){
 	
 		var Block = new Array(5);
-		
-	
-		
+				
 		for(var i=0;i<Block.length-1;i++){
 			
 		Block[i]=new Array(2);
@@ -187,54 +185,65 @@ $(document).ready(function(){
 			
 		}		
 	}
-	function rotate(Block){
+	function rotate(Block){ //still some latency//
+		
+		var rotatable = true;
 				
 		var XOffset = parseInt(Block[0][0]);
 		var YOffset = parseInt(Block[0][1]);
 		
-		var testBlock = Block;
+		var testBlock = new Array(5)
+				
+			for(var i=0;i<Block.length-1;i++){
+				
+			testBlock[i]=new Array(2);
 			
+		};
+		
 		for(var i=0;i<Block.length-1;i++){ //loop through every member of the block//
 			
-			$('#grid'+Block[i][0]+'-'+Block[i][1]).css('background-color','black');
-			
-			testBlock[i][0] = testBlock[i][0]-XOffset;
-			testBlock[i][1] = testBlock[i][1]-YOffset;			
+			testBlock[i][0] = Block[i][0]-XOffset;
+			testBlock[i][1] = Block[i][1]-YOffset;			
 						
 			var temp1 = 0*testBlock[i][0]+-1*testBlock[i][1];//rotational matrix - rotate clockwise by 90 degrees
 			var temp2 = 1*testBlock[i][0]+0*testBlock[i][1];
 			
-			//findDistance check//
+			//testBlock[i][0] = temp1+XOffset; //x direction//
+			
+			//testBlock[i][1] = temp2+YOffset; //y direction//						
 			
 			if(gridFill[(temp1+XOffset)][(temp2+YOffset)]!=='black'){
 				
-				console.log("can't rotate");
+				rotatable = false;
+				console.log("can't Rotate");
 				
-			}else{
+			}	
+		}
+		
+		//console.log(testBlock);
+		//console.log(Block);
+		
+		if(rotatable === true){
 			
-			Block[i][0] = temp1+XOffset; //x direction//
-			Block[i][1] = temp2+YOffset; //y direction//
+			for(var i=0;i<Block.length-1;i++){ //loop through every member of the block//			
 			
-			}
-			
-			
-			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');	
-			
-			/*Block[i][0] = Block[i][0]-XOffset;
-			Block[i][1] = Block[i][1]-YOffset;			
-						
-			var temp1 = 0*Block[i][0]+-1*Block[i][1];//rotational matrix - rotate clockwise by 90 degrees
-			var temp2 = 1*Block[i][0]+0*Block[i][1];
-			
-			//findDistance check//
-			
-			Block[i][0] = temp1+XOffset; //x direction//
-			Block[i][1] = temp2+YOffset; //y direction//	*/
-			var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');
-			
-			$(CurrentCell).css('background-color',Block[4]);
-	
-		} //end For
+				$('#grid'+Block[i][0]+'-'+Block[i][1]).css('background-color','black');				
+				Block[i][0] = Block[i][0]-XOffset;
+				Block[i][1] = Block[i][1]-YOffset;			
+							
+				var temp1 = 0*Block[i][0]+-1*Block[i][1];//rotational matrix - rotate clockwise by 90 degrees
+				var temp2 = 1*Block[i][0]+0*Block[i][1];
+				
+				Block[i][0] = temp1+XOffset; //x direction//
+				Block[i][1] = temp2+YOffset; //y direction//
+				var CurrentCell = "#"+"grid"+Block[i].toString().replace(',','-');
+				
+				$(CurrentCell).css('background-color',Block[4]);
+				
+				console.log(CurrentCell);
+		
+			} //end For
+		}
 
 	} //end Function
 		
@@ -292,8 +301,6 @@ $(document).ready(function(){
 				block2Grid(currentBlock);
 				
 				newBlock = true;
-				
-				console.log(gridFill[6]);
 				
 			};
 				
@@ -411,7 +418,7 @@ $(document).ready(function(){
 							
 		} //end for
 		
-		console.log(bottomDistance);
+		//console.log(bottomDistance);
 	
 		if(direction =="left"){
 		
