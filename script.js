@@ -311,7 +311,11 @@ $(document).ready(function(){
 				
 				case 40: //down key, go all the way down
 				
-					update(currentBlock,"grid",0,(findDistance(currentBlock,"down")-1));
+					update(currentBlock,"grid",0,(findDistance(currentBlock,"down"))); //not perfect
+					
+					block2Grid(currentBlock);
+					
+					newBlock = true;
 					
 				default:
 					break;
