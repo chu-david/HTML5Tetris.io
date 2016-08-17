@@ -12,6 +12,8 @@ $(document).ready(function(){
 		var height = 14;		
 		var gridFill = new Array(width);
 		var score = 0; //overall score
+		var MainGame;
+		var active = false;
 		
 		for(var i=0; i<width;i++){
 		
@@ -29,14 +31,14 @@ $(document).ready(function(){
 		
 		//test loop to introduce walls//
 		
-/*		for(var j=0;j<width;j++){
+		for(var j=0;j<width;j++){
 
 			gridFill[j][13] = "green";
 			//gridFill[1][j] = "green";
 			
 			//$('.cell[id="2-4').
 			
-		}*/
+		}
 		
 		//console.log(gridFill);
 		
@@ -44,6 +46,7 @@ $(document).ready(function(){
 		
 		$('#StartGame').click(function(){
 			
+			active = true;
 			nextBlock =generateBlock(); 
 			displayGrid();
 			gameStart();
@@ -235,7 +238,7 @@ $(document).ready(function(){
 		
 		update(nextBlock,"preview",1,1);	//1-1 To align with Preview Grid	
 			
-		setInterval(blockDown,speed);
+		var MainGame = setInterval(blockDown,speed);
 		
 	}
 	
@@ -244,7 +247,6 @@ $(document).ready(function(){
 		if(bufferTime < 0){
 			
 			$("#message").html("Game will Start in.."+(-bufferTime)+ "Seconds");
-			
 			
 		}else if(bufferTime == 0){
 			
@@ -268,6 +270,20 @@ $(document).ready(function(){
 				update(currentBlock, "grid",5,0); //5-1 to align with Main Grid
 				
 				newBlock =false;
+				
+				if(findDistance(currentBlock,"down") == 0){
+				
+					//Game Over//
+					
+					//HighestScore
+					
+					$('body').html('GAME OVER<br>YOUR SCORE IS: '+score+'Points');
+					
+					clearInterval(MainGame);
+					
+					
+						
+				}
 										
 			}else if (newBlock ==false){
 			
@@ -275,13 +291,13 @@ $(document).ready(function(){
 				
 			}
 			
-			//test me
 			if(findDistance(currentBlock,"down") == 0){
-			
+				
+				sweep();				
+				
 				block2Grid(currentBlock);
 				
-				newBlock = true;
-				
+				newBlock = true; //this line is reinventing newBlock//
 			};
 				
 		}
@@ -382,15 +398,22 @@ $(document).ready(function(){
 			
 			} //end if
 				
-			bottomDistance = (height-1)-Block[i][1]; //default bottomDistance			
+			bottomDistance = (height-1)-Block[i][1]; //default bottomDistance	
+			
+			//console.log("default bottomDistance "+bottomDistance);		
 			
 			//console.log(gridFill[(Block[i][0])][height-1]);
 			
-			for(var m = (height-1);m>(Block[i][1]);m--){
+			for(var m = (height-1);m>(Block[i][1]);m--){ //BUG HERE
 								
 				if(gridFill[(Block[i][0])][m]!=="black"){ //any cells filled under the current square?
-					bottomDistance = m-Block[i][1]-1;	
+					bottomDistance = m-Block[i][1]-1;
 					
+					//console.log("m " +m);
+					
+					//console.log("Block height y coordinate"+Block[i][1]);	
+					
+					//console.log("bottom distance "+bottomDistance);
 				}
 				
 			}
@@ -431,6 +454,10 @@ $(document).ready(function(){
 			$(CurrentCell).css('background-color',Block[Block.length-1]);
 		
 		}
+		score = score + 1;
+	
+		$('#currentScore').html("SCORE: "+score);
+	
 	}
 	
 	function displayGrid(){  //to optimise - slow response time//
@@ -447,46 +474,56 @@ $(document).ready(function(){
 	
 	function sweep(){
 		
-		console.log("attempt to sweep");
-		
-		for(var i=height-1; i>=0;i--){
+		//console.log("before");
+		//console.log(gridFill[5]);
 			
-			var clearLevel = true;
+		for(var i=height-1;i>=0;i--){ //looping through every row//
+			
+		var rowComplete = true; //innocent until proven guilty//
 			
 			for(var j=0;j<width;j++){
-				
-				console.log(gridFill[j][i]); //seem to be indicating where bugs are
-				
-				if(gridFill[j][i] =="black"){
-					
-					clearLevel=false;
-				}/*else{
-					console.log("true triggered");
-				}*/ //test - true triggered a few times
-			}
-			if(clearLevel == true){ //to be tested//
-				
-				console.log("can sweep");
 								
-				gridFill.splice(i,i+1);
+				//console.log("j ="+j+"i ="+i)
 				
-				var Empty = new Array(height);
-				
-				for(var j=0;j<height;j++){
-			
-					Empty[j] = "black";
+				if(gridFill[j][i] == "black"){
+					
+					gridFill[j][i];
+					
+					rowComplete = false; //if any members in the row is blank, then row isn't complete//
+					
 				}
-				gridFill = Empty.concat(gridFill);
 				
-				i=i-1;
-				
-				speed = speed*0.95;
 			}
+			if(rowComplete == true){
+			
+				for(var j=0;j<width;j++){
+				
+					gridFill[j].splice(i,1);
+					
+					gridFill[j].splice(0,0,"black"); //disappears but some blocks get stuck near the top
+
+				}
+			
+			i=i+1;
+			speed = speed*0.95;
+			score = score + width;
+			$('#currentScore').html("SCORE: "+score);
+			
+			}			
 		}
-	
+
+		//console.log("after");
+		//console.log(gridFill[5]);
 	}
 	
-	
+	/*function getCol(matrix, col){
+       var column = [];
+       for(var i=0; i<matrix.length; i++){
+          column.push(matrix[i][col]);
+       }
+       return column;
+    }
+	*/
 	function reset(){
 		$('.cell').removeAttr('color');
 	}
