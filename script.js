@@ -506,6 +506,7 @@ $(document).ready(function(){
 			
 			i=i+1;
 			speed = speed*0.95;
+			console.log(speed);
 			score = score + width;
 			$('#currentScore').html("SCORE: "+score);
 			
