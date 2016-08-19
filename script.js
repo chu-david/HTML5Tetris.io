@@ -293,11 +293,11 @@ $(document).ready(function(){
 			
 			if(findDistance(currentBlock,"down") == 0){
 				
-				sweep();				
-				
 				block2Grid(currentBlock);
 				
-				newBlock = true; //this line is reinventing newBlock//
+				sweep();
+								
+				newBlock = true;
 			};
 				
 		}
@@ -500,7 +500,7 @@ $(document).ready(function(){
 				
 					gridFill[j].splice(i,1);
 					
-					gridFill[j].splice(0,0,"black"); //disappears but some blocks get stuck near the top
+					gridFill[j].splice(0,0,"black");
 
 				}
 			
