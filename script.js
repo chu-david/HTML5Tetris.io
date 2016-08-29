@@ -238,7 +238,7 @@ $(document).ready(function(){
 		
 		update(nextBlock,"preview",1,1);	//1-1 To align with Preview Grid	
 			
-		var MainGame = setInterval(blockDown,speed);
+		MainGame = setInterval(blockDown,speed);
 		
 	}
 	
