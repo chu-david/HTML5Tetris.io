@@ -13,6 +13,7 @@ $(document).ready(function(){
 		var gridFill = new Array(width);
 		var score = 0; //overall score
 		var MainGame;
+		var bufferGame;
 		var active = false;
 		
 		for(var i=0; i<width;i++){
@@ -46,7 +47,6 @@ $(document).ready(function(){
 		
 		$('#StartGame').click(function(){
 			
-			active = true;
 			nextBlock =generateBlock(); 
 			displayGrid();
 			gameStart();
@@ -232,6 +232,8 @@ $(document).ready(function(){
 		
 	function gameStart(){
 		
+		active = true;
+		
 		$("#StartGame").attr('disabled','disabled'); //suggest move somewhere else
 		
 		reset();
@@ -276,12 +278,13 @@ $(document).ready(function(){
 					//Game Over//
 					
 					//HighestScore
-					
+
+										
 					$('body').html('GAME OVER<br>YOUR SCORE IS: '+score+'Points');
 					
-					clearInterval(MainGame);
+					active = false;
 					
-					
+					clearInterval(MainGame);					
 						
 				}
 										
@@ -291,13 +294,27 @@ $(document).ready(function(){
 				
 			}
 			
-			if(findDistance(currentBlock,"down") == 0){
-				
-				block2Grid(currentBlock);
-				
-				sweep();
-								
-				newBlock = true;
+			if(findDistance(currentBlock,"down") == 0 && active == true){ //organic drop
+					
+				//THIS IS WHERE THE PROBLEM IS - HOW TO USE setTimeout	
+				clearInterval(MainGame);
+
+				bufferGame= setTimeout(function(){
+					newBlock = true;
+					
+					active = false;
+					
+					alert("active"); //not executing this
+					block2Grid(currentBlock);
+
+					sweep();
+										
+					gameStart(); //restart interval//										
+
+				},300);
+				//clearInterval(bufferGame);				
+
+										
 			};
 				
 		}
@@ -305,9 +322,14 @@ $(document).ready(function(){
 				
 	}
 	
+		//clearInterval(MainGame);
+		
+		//mainGame=setInterval(blockDown,speed);
+		//need to be somewhere
+	
 	$(document).keydown(function(e){
 		
-		if(e.which == 39 || e.which ==37 || e.which ==38 ||e.which ==40){ //invalid for all other keys
+		if((e.which == 39 || e.which ==37 || e.which ==38 ||e.which ==40) && active==true){ //invalid for all other keys
 			//right arrow		left arrow		up arrow	down arrow
 			
 			switch(e.which){
@@ -344,6 +366,13 @@ $(document).ready(function(){
 					sweep();
 					
 					newBlock = true;
+					
+					clearInterval(MainGame);
+				
+					gameStart(); //restart interval//
+					
+					
+					
 					break;
 					
 				default:
@@ -444,7 +473,8 @@ $(document).ready(function(){
 	}
 	
 	function block2Grid(Block){ //saves the block to the grid matrix
-
+		
+		console.log("block2Grid");
 		for(var i=0; i < Block.length-1; i++){
 			
 			gridFill[(Block[i][0])][(Block[i][1])]= Block[Block.length-1];
@@ -506,9 +536,10 @@ $(document).ready(function(){
 			
 			i=i+1;
 			speed = speed*0.95;
-			console.log(speed);
 			score = score + width;
 			$('#currentScore').html("SCORE: "+score);
+			
+			console.log(speed);
 			
 			}			
 		}
