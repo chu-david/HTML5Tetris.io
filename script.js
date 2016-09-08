@@ -5,7 +5,7 @@ $(document).ready(function(){
 		//console.log("Ready");
 		var currentBlock;
 		var nextBlock;
-		var speed = 500; //time between each block movement//
+		var speed = 800; //time between each block movement//
 		var bufferTime = -3 // 3 Seconds between Start Game and Ready
 		var newBlock = true; //To see if it is a new Block//
 		var width = 12;
@@ -539,8 +539,6 @@ $(document).ready(function(){
 			score = score + width;
 			$('#currentScore').html("SCORE: "+score);
 			
-			console.log(speed);
-			
 			}			
 		}
 
@@ -548,14 +546,6 @@ $(document).ready(function(){
 		//console.log(gridFill[5]);
 	}
 	
-	/*function getCol(matrix, col){
-       var column = [];
-       for(var i=0; i<matrix.length; i++){
-          column.push(matrix[i][col]);
-       }
-       return column;
-    }
-	*/
 	function reset(){
 		$('.cell').removeAttr('color');
 	}
